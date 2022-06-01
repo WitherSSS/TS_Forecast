@@ -14,7 +14,7 @@ horizon = 1                     # 移动的步长
 train_set = 0.6                 # 训练集
 test_set = 0.25                 # 测试集
 batch_size = 32                 # 一次训练所抓取的数据样本数量
-epochs = 1                    # 工作次数
+epochs = 200                    # 工作次数
 learning_rate = 1e-3            # 学习率
 
 # 读取数据
