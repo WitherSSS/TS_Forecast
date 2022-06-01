@@ -1,3 +1,4 @@
+from tkinter import Y
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -13,7 +14,7 @@ sequence_length = 10            # 序列长度
 horizon = 1                     # 移动的步长
 train_set = 0.6                 # 训练集
 test_set = 0.25                 # 测试集
-batch_size = 32                 # 一次训练所抓取的数据样本数量
+batch_size = 16                 # 一次训练所抓取的数据样本数量
 epochs = 200                    # 工作次数
 learning_rate = 1e-3            # 学习率
 
@@ -96,12 +97,14 @@ def inverse_data(y_train_initial, y_pre, y_test):
     return y_pre, y_test
 
 # 画图
-def plt_image(y_pre_rel,y_test_rel):
+def plt_image(y_pre_rel,y_test_rel,error):
     # pd.Series()
     plt.figure()
     plt.plot(y_pre_rel, 'y-', label='predictions')
     plt.plot(y_test_rel, 'r--', label='test')
     plt.legend(loc='best')
+    plt.fill_between(range(1,np.size(y_pre_rel)+1),y_pre_rel - error, y_pre_rel + error, alpha = 0.3, color = 'orange')
+    plt.savefig('result.png')
     plt.show()
 
 
@@ -132,17 +135,24 @@ def main():
 
     # 转换到原来的数据格式
     y_pre_rel, y_test_rel = inverse_data(y_train_initial, y_pre, y_test)
-    y_pre_rel = np.array(y_pre_rel).reshape(-1, 1)
-    y_test_rel = np.array(y_test_rel).reshape(-1, 1)
+    y_pre_rel = np.array(y_pre_rel).reshape(-1)
+    y_test_rel = np.array(y_test_rel).reshape(-1)
 
-    # rmse
+    # error
     rmse = np.sqrt(MSE(y_pre_rel, y_test_rel))
     mape = MAPE(y_pre_rel, y_test_rel)
     print('RMSE : %.4f' % (rmse))
     print('MAPE : %.4f' % (mape))
 
+    error = tf.keras.metrics.mean_absolute_error(y_test_rel, y_pre_rel).numpy()
+    error = np.array(error).reshape(-1)
+
+    # 输出
+    np.savetxt("result.csv", np.array([y_test_rel,y_pre_rel]).transpose(), delimiter=',')
+
     # 画图
-    plt_image(y_pre_rel,y_test_rel)
+    plt_image(y_pre_rel,y_test_rel,error)
+
 
 
 if __name__ == '__main__':
