@@ -111,7 +111,6 @@ def inverse_data(y_train_initial, y_pre, y_test):
 
 
 def plt_image(y_pre_rel, y_test_rel):
-    # pd.Series()
     plt.figure()
     plt.plot(y_pre_rel, 'y-', label='predictions')
     plt.plot(y_test_rel, 'r--', label='test')
