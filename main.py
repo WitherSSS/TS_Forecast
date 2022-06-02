@@ -7,21 +7,25 @@ from sklearn.metrics import mean_absolute_percentage_error as MAPE
 from sklearn.metrics import mean_squared_error as MSE
 from sklearn.preprocessing import StandardScaler
 
+
 index = 'data'
 path = './data.csv'
-sequence_length = 10            # 序列长度(输入层)
+sequence_length = 144            # 序列长度(输入层)
 horizon = 1                     # 移动的步长
 train_set = 0.6                 # 训练集
 test_set = 0.25                 # 测试集
 batch_size = 32                 # 一次训练所抓取的数据样本数量
 epochs = 200                    # 训练次数
-learning_rate = 1e-3            # 学习率
-dense_1 = 24                    # 隐藏层1
+dense_1 = 36                    # 隐藏层1
 dense_2 = 8                     # 隐藏层2
+loss = 'mean_squared_error'     # 损失函数
+#metrics = ['mae', 'acc']        # 评价函数
+optimizer = optimizers.Adam(learning_rate=1e-3)  # 优化器
+# 参考 https://keras.io/zh/
+
 
 # 读取数据
 def read_data(datapath):
-    # read data
     data1 = pd.read_csv(datapath, index_col=0)
     return data1
 
@@ -122,8 +126,8 @@ def main():
     # 训练模型
     model = get_uncompiled_model()
     # model.compile()模型配置损失和度量、优化器
-    model.compile(optimizer=optimizers.Adam(learning_rate=learning_rate),
-                  loss='mean_squared_error',
+    model.compile(optimizer=optimizer,
+                  loss=loss, 
                   )
     # model.fit()对模型进行训练
     model.fit(x_train, y_train, batch_size=batch_size,
