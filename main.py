@@ -20,8 +20,6 @@ dense_1 = 24                    # 隐藏层1
 dense_2 = 8                     # 隐藏层2
 
 # 读取数据
-
-
 def read_data(datapath):
     # read data
     data1 = pd.read_csv(datapath, index_col=0)
@@ -56,8 +54,6 @@ def splitdata(data, sequence_length, horizon):
     return x_train_initial, y_train_initial, x_val_initial, y_val_initial, x_test_initial, y_test_initial
 
 # 标准化处理
-
-
 def standard(x_train_initial, y_train_initial, x_val_initial, y_val_initial, x_test_initial, y_test_initial):
     x_scaler = StandardScaler()
     y_scale = StandardScaler()
@@ -83,8 +79,6 @@ def standard(x_train_initial, y_train_initial, x_val_initial, y_val_initial, x_t
     return x_train, y_train, x_val, y_val, x_test, y_test
 
 # keras 版本模型
-
-
 def get_uncompiled_model():
     inputs = tf.keras.Input(shape=(sequence_length,), name='digits')
 
@@ -97,8 +91,6 @@ def get_uncompiled_model():
     return model
 
 # 转换到标准化前的格式
-
-
 def inverse_data(y_train_initial, y_pre, y_test):
     y_scale = StandardScaler()
     y_scale = y_scale.fit(y_train_initial.reshape(-1, 1))
@@ -108,8 +100,6 @@ def inverse_data(y_train_initial, y_pre, y_test):
     return y_pre, y_test
 
 # 画图
-
-
 def plt_image(y_pre_rel, y_test_rel):
     plt.figure()
     plt.plot(y_pre_rel, 'y-', label='predictions')
