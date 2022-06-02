@@ -2,26 +2,31 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from sklearn.metrics import mean_squared_error as MSE
-from sklearn.metrics import mean_absolute_percentage_error as MAPE
-from sklearn.preprocessing import StandardScaler
 from keras import layers, optimizers
+from sklearn.metrics import mean_absolute_percentage_error as MAPE
+from sklearn.metrics import mean_squared_error as MSE
+from sklearn.preprocessing import StandardScaler
 
 index = 'data'
 path = './data.csv'
-sequence_length = 10            # 序列长度
+sequence_length = 10            # 序列长度(输入层)
 horizon = 1                     # 移动的步长
 train_set = 0.6                 # 训练集
 test_set = 0.25                 # 测试集
-batch_size = 16                 # 一次训练所抓取的数据样本数量
-epochs = 200                    # 工作次数
+batch_size = 32                 # 一次训练所抓取的数据样本数量
+epochs = 200                    # 训练次数
 learning_rate = 1e-3            # 学习率
+dense_1 = 24                    # 隐藏层1
+dense_2 = 8                     # 隐藏层2
 
 # 读取数据
+
+
 def read_data(datapath):
     # read data
     data1 = pd.read_csv(datapath, index_col=0)
     return data1
+
 
 # 分割数据
 def splitdata(data, sequence_length, horizon):
@@ -51,6 +56,8 @@ def splitdata(data, sequence_length, horizon):
     return x_train_initial, y_train_initial, x_val_initial, y_val_initial, x_test_initial, y_test_initial
 
 # 标准化处理
+
+
 def standard(x_train_initial, y_train_initial, x_val_initial, y_val_initial, x_test_initial, y_test_initial):
     x_scaler = StandardScaler()
     y_scale = StandardScaler()
@@ -76,17 +83,22 @@ def standard(x_train_initial, y_train_initial, x_val_initial, y_val_initial, x_t
     return x_train, y_train, x_val, y_val, x_test, y_test
 
 # keras 版本模型
+
+
 def get_uncompiled_model():
     inputs = tf.keras.Input(shape=(sequence_length,), name='digits')
 
-    x = layers.Dense(24, activation='relu', name='dense_1')(inputs)
-    x = layers.Dense(8, activation='relu', name='dense_2')(x)
-    x = layers.Dense(1, name='dense_3')(x)
+    x = layers.Dense(dense_1, activation='relu',
+                     name='dense_1')(inputs)  # 隐藏层1
+    x = layers.Dense(dense_2, activation='relu', name='dense_2')(x)  # 隐藏层2
+    x = layers.Dense(1, name='dense_3')(x)  # 输出层
 
     model = tf.keras.Model(inputs=inputs, outputs=x)
     return model
 
 # 转换到标准化前的格式
+
+
 def inverse_data(y_train_initial, y_pre, y_test):
     y_scale = StandardScaler()
     y_scale = y_scale.fit(y_train_initial.reshape(-1, 1))
@@ -96,13 +108,14 @@ def inverse_data(y_train_initial, y_pre, y_test):
     return y_pre, y_test
 
 # 画图
-def plt_image(y_pre_rel,y_test_rel,error):
+
+
+def plt_image(y_pre_rel, y_test_rel):
     # pd.Series()
     plt.figure()
     plt.plot(y_pre_rel, 'y-', label='predictions')
     plt.plot(y_test_rel, 'r--', label='test')
     plt.legend(loc='best')
-    plt.fill_between(range(1,np.size(y_pre_rel)+1),y_pre_rel - error, y_pre_rel + error, alpha = 0.3, color = 'orange')
     plt.savefig('result.png')
     plt.show()
 
@@ -116,8 +129,6 @@ def main():
     # 标准化
     x_train, y_train, x_val, y_val, x_test, y_test = standard(
         x_train_initial, y_train_initial, x_val_initial, y_val_initial, x_test_initial, y_test_initial)
-
-    # print('size = ',y_test.size)
 
     # 训练模型
     model = get_uncompiled_model()
@@ -143,15 +154,12 @@ def main():
     print('RMSE : %.4f' % (rmse))
     print('MAPE : %.4f' % (mape))
 
-    error = tf.keras.metrics.mean_absolute_error(y_test_rel, y_pre_rel).numpy()
-    error = np.array(error).reshape(-1)
-
     # 输出
-    np.savetxt("result.csv", np.array([y_test_rel,y_pre_rel]).transpose(), delimiter=',')
+    np.savetxt("result.csv", np.array(
+        [y_test_rel, y_pre_rel]).transpose(), delimiter=',')
 
     # 画图
-    plt_image(y_pre_rel,y_test_rel,error)
-
+    plt_image(y_pre_rel, y_test_rel)
 
 
 if __name__ == '__main__':
