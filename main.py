@@ -1,3 +1,4 @@
+import time
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -129,6 +130,7 @@ def plt_image(y_pre_rel, y_test_rel):
 
 
 def main():
+    start_time = time.time()
     # 读取数据
     data = read_data(path)[index]
     # 分割数据
@@ -160,7 +162,9 @@ def main():
     print(error(y_pre_rel, y_test_rel))
 
     # 输出
-    np.savetxt("result.csv", np.array(
+    end_time = time.time()
+    print('Total Time: %.4f' % (end_time-start_time))
+    np.savetxt('result.csv', np.array(
         [y_test_rel, y_pre_rel]).transpose(), delimiter=',')
 
     # 画图
